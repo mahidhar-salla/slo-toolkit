@@ -1,0 +1,7 @@
+apiVersion: 1
+providers:
+  - name: slo-toolkit
+    folder: SLOs
+    type: file
+    options:
+      path: /var/lib/grafana/dashboards

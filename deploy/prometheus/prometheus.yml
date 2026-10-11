@@ -1,0 +1,12 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - /etc/prometheus/rules/*.rules.yaml
+
+scrape_configs:
+  # The job name becomes the `job` label the SLI queries filter on.
+  - job_name: checkout-api
+    static_configs:
+      - targets: ["demo:8080"]
