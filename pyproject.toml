@@ -1,0 +1,59 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "slo-toolkit"
+version = "0.1.0"
+description = "Define SLOs once in YAML; get error budgets, multi-window burn-rate Prometheus alerts, Grafana dashboards and budget reports."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Mahidhar Chowdhary Salla" }]
+keywords = ["sre", "slo", "error-budget", "prometheus", "grafana", "alerting", "burn-rate", "kubernetes"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Topic :: System :: Monitoring",
+  "Environment :: Console",
+]
+dependencies = ["typer>=0.12", "rich>=13", "pydantic>=2.5", "pyyaml>=6"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-cov>=5", "ruff>=0.6", "mypy>=1.10", "types-PyYAML"]
+
+[project.urls]
+Homepage = "https://github.com/mahidhar-salla/slo-toolkit"
+Issues = "https://github.com/mahidhar-salla/slo-toolkit/issues"
+
+[project.scripts]
+slo-toolkit = "slo_toolkit.cli:app"
+slo = "slo_toolkit.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/slo_toolkit"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "SIM", "RUF"]
+ignore = ["S101", "S603", "RUF001"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S"]
+"demo/*" = ["S"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = ["src"]
+
+[[tool.mypy.overrides]]
+module = ["typer.*", "rich.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
