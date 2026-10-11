@@ -1,0 +1,16 @@
+# Synthetic example: a gRPC service, using the go-grpc-prometheus / grpc-ecosystem metric names.
+# Client-caused codes (NotFound, InvalidArgument, ...) don't count against the service.
+apiVersion: slo-toolkit/v1
+service: customer-profile
+owner: identity-platform
+slos:
+  - name: availability
+    description: RPCs that don't fail for server-side reasons.
+    objective: 99.95
+    window: 28d
+    sli:
+      bad: sum(rate(grpc_server_handled_total{grpc_service="profile.v1.ProfileService",grpc_code=~"Unknown|Internal|Unavailable|DeadlineExceeded|DataLoss"}[{{window}}]))
+      total: sum(rate(grpc_server_handled_total{grpc_service="profile.v1.ProfileService"}[{{window}}]))
+    alerting:
+      page_labels: { severity: critical, team: identity-platform }
+      ticket_labels: { severity: warning, team: identity-platform }

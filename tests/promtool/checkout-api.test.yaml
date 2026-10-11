@@ -1,0 +1,98 @@
+# promtool unit tests for the generated checkout-api rules (synthetic series).
+# Run: promtool test rules tests/promtool/checkout-api.test.yaml
+rule_files:
+- ../../examples/http-api/out/checkout-api.rules.yaml
+evaluation_interval: 1m
+tests:
+- name: sustained 9% errors pages and opens a ticket
+  interval: 1m
+  input_series:
+  - series: http_requests_total{job="checkout-api",code="200"}
+    values: 0+6000x120
+  - series: http_requests_total{job="checkout-api",code="500"}
+    values: 0+600x120
+  alert_rule_test:
+  - eval_time: 30m
+    alertname: CheckoutApiAvailabilityErrorBudgetBurn
+    exp_alerts:
+    - exp_labels:
+        severity: page
+        slo_service: checkout-api
+        slo_name: availability
+        slo_owner: payments-platform
+        tier: '1'
+      exp_annotations:
+        summary: checkout-api availability SLO is burning its error budget too fast
+        description: 'Objective 99.9% over 30d. Fires when the error rate would spend 2% of the 30d budget in 1h (burn rate 14.4x, confirmed over 5m); 5% of the 30d budget in 6h (burn rate 6x, confirmed over 30m). Long-window error ratio: 9.091%.'
+        runbook_url: https://github.com/mahidhar-salla/slo-toolkit/blob/main/docs/runbooks/error-budget-burn.md
+    - exp_labels:
+        severity: ticket
+        slo_service: checkout-api
+        slo_name: availability
+        slo_owner: payments-platform
+        tier: '1'
+      exp_annotations:
+        summary: checkout-api availability SLO is burning its error budget too fast
+        description: 'Objective 99.9% over 30d. Fires when the error rate would spend 10% of the 30d budget in 1d (burn rate 3x, confirmed over 2h); 10% of the 30d budget in 3d (burn rate 1x, confirmed over 6h). Long-window error ratio: 9.091%.'
+        runbook_url: https://github.com/mahidhar-salla/slo-toolkit/blob/main/docs/runbooks/error-budget-burn.md
+  promql_expr_test:
+  - expr: slo:objective:ratio{slo_service="checkout-api", slo_name="availability"}
+    eval_time: 1m
+    exp_samples:
+    - labels: slo:objective:ratio{slo_service="checkout-api", slo_name="availability", slo_owner="payments-platform", tier="1"}
+      value: 0.999
+- name: healthy service at half the budget rate stays quiet
+  interval: 1m
+  input_series:
+  - series: http_requests_total{job="checkout-api",code="200"}
+    values: 0+5997x120
+  - series: http_requests_total{job="checkout-api",code="500"}
+    values: 0+3x120
+  alert_rule_test:
+  - eval_time: 90m
+    alertname: CheckoutApiAvailabilityErrorBudgetBurn
+    exp_alerts: []
+- name: page clears once the short windows recover; ticket stays open
+  interval: 1m
+  input_series:
+  - series: http_requests_total{job="checkout-api",code="200"}
+    values: 0+5400x30 162000+6000x60
+  - series: http_requests_total{job="checkout-api",code="500"}
+    values: 0+600x30 18000+0x60
+  alert_rule_test:
+  - eval_time: 25m
+    alertname: CheckoutApiAvailabilityErrorBudgetBurn
+    exp_alerts:
+    - exp_labels:
+        severity: page
+        slo_service: checkout-api
+        slo_name: availability
+        slo_owner: payments-platform
+        tier: '1'
+      exp_annotations:
+        summary: checkout-api availability SLO is burning its error budget too fast
+        description: 'Objective 99.9% over 30d. Fires when the error rate would spend 2% of the 30d budget in 1h (burn rate 14.4x, confirmed over 5m); 5% of the 30d budget in 6h (burn rate 6x, confirmed over 30m). Long-window error ratio: 10%.'
+        runbook_url: https://github.com/mahidhar-salla/slo-toolkit/blob/main/docs/runbooks/error-budget-burn.md
+    - exp_labels:
+        severity: ticket
+        slo_service: checkout-api
+        slo_name: availability
+        slo_owner: payments-platform
+        tier: '1'
+      exp_annotations:
+        summary: checkout-api availability SLO is burning its error budget too fast
+        description: 'Objective 99.9% over 30d. Fires when the error rate would spend 10% of the 30d budget in 1d (burn rate 3x, confirmed over 2h); 10% of the 30d budget in 3d (burn rate 1x, confirmed over 6h). Long-window error ratio: 10%.'
+        runbook_url: https://github.com/mahidhar-salla/slo-toolkit/blob/main/docs/runbooks/error-budget-burn.md
+  - eval_time: 65m
+    alertname: CheckoutApiAvailabilityErrorBudgetBurn
+    exp_alerts:
+    - exp_labels:
+        severity: ticket
+        slo_service: checkout-api
+        slo_name: availability
+        slo_owner: payments-platform
+        tier: '1'
+      exp_annotations:
+        summary: checkout-api availability SLO is burning its error budget too fast
+        description: 'Objective 99.9% over 30d. Fires when the error rate would spend 10% of the 30d budget in 1d (burn rate 3x, confirmed over 2h); 10% of the 30d budget in 3d (burn rate 1x, confirmed over 6h). Long-window error ratio: 4.688%.'
+        runbook_url: https://github.com/mahidhar-salla/slo-toolkit/blob/main/docs/runbooks/error-budget-burn.md

@@ -1,0 +1,29 @@
+# Synthetic example: a scheduled batch job. Two SLIs that matter for batch work:
+#   - runs: share of runs that finish successfully
+#   - freshness: share of minutes where the last successful run is under 26h old
+# The job is assumed to push a counter per run and a last-success timestamp (e.g. via Pushgateway).
+apiVersion: slo-toolkit/v1
+service: nightly-statements
+owner: data-platform
+slos:
+  - name: runs
+    description: Batch runs that complete without error.
+    objective: 99.0
+    window: 30d
+    sli:
+      good: sum(increase(batch_job_runs_total{job="nightly-statements",result="success"}[{{window}}]))
+      total: sum(increase(batch_job_runs_total{job="nightly-statements"}[{{window}}]))
+    # Few events per day, so the 1h page window means little; keep it ticket-only in spirit
+    # by routing page-level alerts to the team channel instead of a pager.
+    alerting:
+      profile: workbook-table
+      page_labels: { severity: warning, route: team-channel }
+      ticket_labels: { severity: info }
+
+  - name: freshness
+    description: Minutes in which the last successful run is less than 26h old.
+    objective: 99.5
+    window: 30d
+    sli:
+      good: sum(count_over_time(((time() - batch_job_last_success_timestamp_seconds{job="nightly-statements"}) < 93600)[{{window}}:1m]))
+      total: sum(count_over_time(batch_job_last_success_timestamp_seconds{job="nightly-statements"}[{{window}}:1m]))

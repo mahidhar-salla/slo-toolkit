@@ -1,0 +1,13 @@
+# Synthetic example: a Kafka consumer group. The SLI is "minutes where total lag is under
+# 5,000 messages", using kafka_consumergroup_lag from the community kafka_exporter.
+apiVersion: slo-toolkit/v1
+service: payment-events-consumer
+owner: payments-platform
+slos:
+  - name: lag
+    description: Minutes in which consumer lag stays under 5,000 messages.
+    objective: 99.5
+    window: 30d
+    sli:
+      good: sum(count_over_time((sum(kafka_consumergroup_lag{consumergroup="payment-events"}) < 5000)[{{window}}:1m]))
+      total: sum(count_over_time(sum(kafka_consumergroup_lag{consumergroup="payment-events"})[{{window}}:1m]))
