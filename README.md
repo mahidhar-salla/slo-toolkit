@@ -73,6 +73,8 @@ slos:
 
 Use `good` or `bad` (one of them) over `total`. `{{window}}` is replaced with each alerting window. Labels, alert routing and the alert policy are optional; see [`examples/`](examples/).
 
+The generated output for this spec is committed, so you can read it without installing anything: [rules](examples/http-api/out/checkout-api.rules.yaml) · [dashboard](examples/http-api/out/checkout-api.dashboard.json).
+
 ## Commands
 
 | Command | What it does |
