@@ -1,0 +1,14 @@
+{{- if .Values.groups }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "slo-rules.name" . }}
+  labels:
+    {{- include "slo-rules.labels" . | nindent 4 }}
+    {{- with .Values.ruleLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  groups:
+    {{- toYaml .Values.groups | nindent 4 }}
+{{- end }}

@@ -1,0 +1,11 @@
+# Normally produced by: slo-toolkit generate <spec> --helm-values
+service: example
+# Labels the prometheus-operator ruleSelector looks for (kube-prometheus-stack default shown).
+ruleLabels:
+  release: kube-prometheus-stack
+groups: []
+dashboard:
+  enabled: true
+  # Grafana sidecar picks up ConfigMaps with this label.
+  label: grafana_dashboard
+  json: ""

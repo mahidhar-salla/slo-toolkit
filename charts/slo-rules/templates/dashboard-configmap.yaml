@@ -1,0 +1,12 @@
+{{- if and .Values.dashboard.enabled .Values.dashboard.json }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "slo-rules.name" . }}-dashboard
+  labels:
+    {{- include "slo-rules.labels" . | nindent 4 }}
+    {{ .Values.dashboard.label }}: "1"
+data:
+  {{ .Values.service }}-slo.json: |-
+    {{- .Values.dashboard.json | nindent 4 }}
+{{- end }}
