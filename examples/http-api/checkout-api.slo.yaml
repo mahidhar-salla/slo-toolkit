@@ -1,0 +1,27 @@
+# Synthetic example: an HTTP API with an availability SLO and a latency SLO.
+# Metric names follow common Prometheus client conventions; nothing here comes from a real system.
+apiVersion: slo-toolkit/v1
+service: checkout-api
+owner: payments-platform
+labels:
+  tier: "1"
+slos:
+  - name: availability
+    description: Requests that don't fail with a 5xx.
+    objective: 99.9
+    window: 30d
+    sli:
+      bad: sum(rate(http_requests_total{job="checkout-api",code=~"5.."}[{{window}}]))
+      total: sum(rate(http_requests_total{job="checkout-api"}[{{window}}]))
+    alerting:
+      runbook_url: https://github.com/mahidhar-salla/slo-toolkit/blob/main/docs/runbooks/error-budget-burn.md
+
+  - name: latency
+    description: Requests served in under 300 ms.
+    objective: 99.0
+    window: 30d
+    sli:
+      good: sum(rate(http_request_duration_seconds_bucket{job="checkout-api",le="0.3"}[{{window}}]))
+      total: sum(rate(http_request_duration_seconds_count{job="checkout-api"}[{{window}}]))
+    alerting:
+      runbook_url: https://github.com/mahidhar-salla/slo-toolkit/blob/main/docs/runbooks/error-budget-burn.md
