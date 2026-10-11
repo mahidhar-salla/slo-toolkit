@@ -143,7 +143,7 @@ It generates the same style of multiwindow, multi-burn-rate rules, so moving to 
 
 ## Why I built this
 
-I'm a Senior Site Reliability Engineer, and much of my recent work has been with a large US auto-finance lender, helping application and business teams adopt SLIs, SLOs and error budgets and making alerting actionable on customer-facing services. The ideas are well documented. The friction is in the mechanics: getting the burn-rate math right, keeping rules and dashboards in step with the targets, and showing a business owner where the budget went this month.
+I'm a Senior Site Reliability Engineer, and much of my recent work has been in a regulated lending environment, helping application and business teams adopt SLIs, SLOs and error budgets and making alerting actionable. The ideas are well documented. The friction is in the mechanics: getting the burn-rate math right, keeping rules and dashboards in step with the targets, and showing a business owner where the budget went this month.
 
 This is the small, open version of that toolkit, written from scratch. It contains no employer or client code, configuration or data; every example and number in this repo is synthetic.
 
