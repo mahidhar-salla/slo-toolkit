@@ -3,7 +3,9 @@
 Naming follows the Prometheus `level:metric:operations` convention:
 
   slo:sli_error:ratio_rate<window>    error ratio over each alerting window
-  slo:period_error:ratio              error ratio averaged over the SLO window
+  slo:sli_bad:rate5m                  bad events per second over 5m
+  slo:sli_total:rate5m                all events per second over 5m
+  slo:period_error:ratio              bad / total events over the SLO window (request-weighted)
   slo:objective:ratio                 e.g. 0.999
   slo:error_budget:ratio              e.g. 0.001
   slo:error_budget_remaining:ratio    1.0 = untouched, 0 = spent, < 0 = SLO missed
@@ -57,10 +59,17 @@ def recording_rules(spec: Spec, slo: SLO) -> list[dict[str, Any]]:
             {"record": f"slo:sli_error:ratio_rate{window}", "expr": slo.sli.error_ratio_expr(window), "labels": labels}
         )
     rules += [
+        # Record bad and total rates separately and sum each over the window. Averaging the
+        # 5m ratio instead would weight a quiet 5 minutes the same as a busy one, and a 0/0
+        # sample (no traffic) would record NaN and blank the budget for the whole window.
+        {"record": "slo:sli_bad:rate5m", "expr": slo.sli.bad_expr("5m"), "labels": labels},
+        {"record": "slo:sli_total:rate5m", "expr": slo.sli.total_expr("5m"), "labels": labels},
         {
-            # Averaging the 5m ratio keeps this cheap compared with a raw 30d rate().
             "record": "slo:period_error:ratio",
-            "expr": f"avg_over_time(slo:sli_error:ratio_rate5m{sel}[{slo.window}])",
+            "expr": (
+                f"sum_over_time(slo:sli_bad:rate5m{sel}[{slo.window}])\n/\n"
+                f"sum_over_time(slo:sli_total:rate5m{sel}[{slo.window}])"
+            ),
             "labels": {**labels, "slo_window": slo.window},
         },
         {"record": "slo:objective:ratio", "expr": f"vector({_num(slo.objective / 100)})", "labels": labels},
@@ -72,7 +81,7 @@ def recording_rules(spec: Spec, slo: SLO) -> list[dict[str, Any]]:
         },
     ]
     if "5m" not in alert_windows(slo):
-        raise ValueError("alert policy must include a 5m window (used for the period average)")
+        raise ValueError("alert policy must include a 5m window (used for the period error ratio)")
     return rules
 
 

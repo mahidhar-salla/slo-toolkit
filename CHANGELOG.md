@@ -4,6 +4,16 @@ All notable changes to this project are listed here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+- `slo:period_error:ratio` now divides the bad and total event counts over the SLO window
+  (new `slo:sli_bad:rate5m` and `slo:sli_total:rate5m` recording rules) instead of averaging
+  5m error ratios. The average over-weighted quiet periods, so uneven traffic could report an
+  error ratio many times too high, and a 5m stretch with no traffic recorded NaN and blanked
+  error budget remaining until it left the window. A `bad` query that matches nothing now
+  reads as zero errors. Thanks to Mike Dabydeen for the report and repro.
+
 ## [0.1.0] - 2026-10-11
 
 First public release.

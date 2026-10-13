@@ -25,6 +25,20 @@ def test_recording_windows(checkout):
     assert "slo:error_budget_remaining:ratio" in records
 
 
+def test_period_ratio_is_request_weighted(checkout):
+    for group in rule_groups(checkout)["groups"]:
+        rules = {r["record"]: r["expr"] for r in group["rules"] if "record" in r}
+        assert "slo:sli_bad:rate5m" in rules and "slo:sli_total:rate5m" in rules
+        period = rules["slo:period_error:ratio"]
+        assert "avg_over_time" not in period
+        assert "sum_over_time(slo:sli_bad:rate5m" in period and "sum_over_time(slo:sli_total:rate5m" in period
+    availability, latency = (g["rules"] for g in rule_groups(checkout)["groups"])
+    bad = {r["record"]: r["expr"] for r in availability if "record" in r}["slo:sli_bad:rate5m"]
+    assert bad.endswith("or vector(0)")  # no 5xx series yet still reads as zero errors
+    bad = {r["record"]: r["expr"] for r in latency if "record" in r}["slo:sli_bad:rate5m"]
+    assert "\n-\n" in bad  # good-based SLI becomes total - good
+
+
 def test_alerts_follow_workbook(checkout):
     alerts = [r for r in rule_groups(checkout)["groups"][0]["rules"] if "alert" in r]
     page, ticket = alerts

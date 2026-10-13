@@ -66,8 +66,23 @@ groups:
       slo_service: customer-profile
       slo_name: availability
       slo_owner: identity-platform
+  - record: slo:sli_bad:rate5m
+    expr: (sum(rate(grpc_server_handled_total{grpc_service="profile.v1.ProfileService",grpc_code=~"Unknown|Internal|Unavailable|DeadlineExceeded|DataLoss"}[5m]))) or vector(0)
+    labels:
+      slo_service: customer-profile
+      slo_name: availability
+      slo_owner: identity-platform
+  - record: slo:sli_total:rate5m
+    expr: sum(rate(grpc_server_handled_total{grpc_service="profile.v1.ProfileService"}[5m]))
+    labels:
+      slo_service: customer-profile
+      slo_name: availability
+      slo_owner: identity-platform
   - record: slo:period_error:ratio
-    expr: avg_over_time(slo:sli_error:ratio_rate5m{slo_service="customer-profile", slo_name="availability"}[28d])
+    expr: |-
+      sum_over_time(slo:sli_bad:rate5m{slo_service="customer-profile", slo_name="availability"}[28d])
+      /
+      sum_over_time(slo:sli_total:rate5m{slo_service="customer-profile", slo_name="availability"}[28d])
     labels:
       slo_service: customer-profile
       slo_name: availability

@@ -73,8 +73,25 @@ groups:
       slo_name: availability
       slo_owner: payments-platform
       tier: '1'
+  - record: slo:sli_bad:rate5m
+    expr: (sum(rate(http_requests_total{job="checkout-api",code=~"5.."}[5m]))) or vector(0)
+    labels:
+      slo_service: checkout-api
+      slo_name: availability
+      slo_owner: payments-platform
+      tier: '1'
+  - record: slo:sli_total:rate5m
+    expr: sum(rate(http_requests_total{job="checkout-api"}[5m]))
+    labels:
+      slo_service: checkout-api
+      slo_name: availability
+      slo_owner: payments-platform
+      tier: '1'
   - record: slo:period_error:ratio
-    expr: avg_over_time(slo:sli_error:ratio_rate5m{slo_service="checkout-api", slo_name="availability"}[30d])
+    expr: |-
+      sum_over_time(slo:sli_bad:rate5m{slo_service="checkout-api", slo_name="availability"}[30d])
+      /
+      sum_over_time(slo:sli_total:rate5m{slo_service="checkout-api", slo_name="availability"}[30d])
     labels:
       slo_service: checkout-api
       slo_name: availability
@@ -231,8 +248,28 @@ groups:
       slo_name: latency
       slo_owner: payments-platform
       tier: '1'
+  - record: slo:sli_bad:rate5m
+    expr: |-
+      (sum(rate(http_request_duration_seconds_count{job="checkout-api"}[5m])))
+      -
+      (sum(rate(http_request_duration_seconds_bucket{job="checkout-api",le="0.3"}[5m])))
+    labels:
+      slo_service: checkout-api
+      slo_name: latency
+      slo_owner: payments-platform
+      tier: '1'
+  - record: slo:sli_total:rate5m
+    expr: sum(rate(http_request_duration_seconds_count{job="checkout-api"}[5m]))
+    labels:
+      slo_service: checkout-api
+      slo_name: latency
+      slo_owner: payments-platform
+      tier: '1'
   - record: slo:period_error:ratio
-    expr: avg_over_time(slo:sli_error:ratio_rate5m{slo_service="checkout-api", slo_name="latency"}[30d])
+    expr: |-
+      sum_over_time(slo:sli_bad:rate5m{slo_service="checkout-api", slo_name="latency"}[30d])
+      /
+      sum_over_time(slo:sli_total:rate5m{slo_service="checkout-api", slo_name="latency"}[30d])
     labels:
       slo_service: checkout-api
       slo_name: latency

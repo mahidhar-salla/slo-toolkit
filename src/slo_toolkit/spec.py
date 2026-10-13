@@ -45,6 +45,21 @@ class SLI(_Strict):
                 raise ValueError(f"'{field}' query must contain {WINDOW_PLACEHOLDER}")
         return self
 
+    def total_expr(self, window: str) -> str:
+        """PromQL for the total event rate over `window`."""
+        return self.total.replace(WINDOW_PLACEHOLDER, window).strip()
+
+    def bad_expr(self, window: str) -> str:
+        """PromQL for the bad event rate over `window`.
+
+        A `bad` query falls back to 0 when it matches nothing (no 5xx series yet), so the
+        budget doesn't go blank on a clean service. A `good` query is turned into total - good.
+        """
+        if self.bad is not None:
+            return f"({self.bad.replace(WINDOW_PLACEHOLDER, window).strip()}) or vector(0)"
+        good = (self.good or "").replace(WINDOW_PLACEHOLDER, window).strip()
+        return f"({self.total_expr(window)})\n-\n({good})"
+
     def error_ratio_expr(self, window: str) -> str:
         """PromQL for the error ratio over `window`."""
         total = self.total.replace(WINDOW_PLACEHOLDER, window).strip()
