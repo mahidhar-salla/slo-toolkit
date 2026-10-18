@@ -98,8 +98,10 @@ tests:
         runbook_url: https://github.com/mahidhar-salla/slo-toolkit/blob/main/docs/runbooks/error-budget-burn.md
 - name: period error ratio counts requests, not 5m windows
   # 30 min at 1,000 req/min with 1 error/min, then 30 min at 10 req/min with 1 error/min.
-  # 60 of 30,300 requests failed (0.198%). The rule reads 0.192% because the first 5m
+  # 60 of 30,300 requests failed (0.198%). The rule reads 0.195% because the first 5m
   # window is only partly filled. Averaging the 5m ratios instead read about 4.4%.
+  # Expected value is for Prometheus 3.x (CI and docker-compose pin 3.5.0); 2.x reads 0.192%
+  # because 3.x range selectors exclude the sample on the window's left edge.
   interval: 1m
   input_series:
   - series: http_requests_total{job="checkout-api",code="200"}
@@ -111,7 +113,7 @@ tests:
     eval_time: 60m
     exp_samples:
     - labels: slo:period_error:ratio{slo_service="checkout-api", slo_name="availability", slo_owner="payments-platform", slo_window="30d", tier="1"}
-      value: 1.9160252386772817E-03
+      value: 1.9478774852229987E-03
 - name: a stretch with no traffic doesn't blank the error budget
   # 0.05% errors, then 10 minutes with no requests at all (a 0/0 window), then traffic again.
   interval: 1m
