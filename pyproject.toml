@@ -9,7 +9,7 @@ description = "Define SLOs once in YAML; get error budgets, multi-window burn-ra
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
-authors = [{ name = "Mahidhar Chowdhary Salla" }]
+authors = [{ name = "Mahidhar Salla" }]
 keywords = ["sre", "slo", "error-budget", "prometheus", "grafana", "alerting", "burn-rate", "kubernetes"]
 classifiers = [
   "Programming Language :: Python :: 3",

@@ -172,4 +172,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) and [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 
-[MIT](LICENSE) © 2026 Mahidhar Chowdhary Salla
+[MIT](LICENSE) © 2026 Mahidhar Salla
