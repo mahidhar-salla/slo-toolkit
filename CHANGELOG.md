@@ -13,6 +13,11 @@ All notable changes to this project are listed here. The format follows
   error ratio many times too high, and a 5m stretch with no traffic recorded NaN and blanked
   error budget remaining until it left the window. A `bad` query that matches nothing now
   reads as zero errors. Thanks to Mike Dabydeen for the report and repro.
+- Spec `labels` can no longer set `slo_service`, `slo_name`, `slo_owner` or `slo_window`.
+  A custom label with one of these names overrode the identity on the generated recording
+  rules while the derived rules still selected on the real service and SLO name, so
+  `slo:period_error:ratio` and budget remaining silently matched nothing. `validate` and
+  `generate` now reject the spec with a readable error. Other custom labels are unchanged.
 
 ## [0.1.0] - 2026-10-11
 

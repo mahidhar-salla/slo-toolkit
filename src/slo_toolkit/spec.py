@@ -14,6 +14,8 @@ from .durations import to_seconds
 
 _NAME = re.compile(r"^[a-z][a-z0-9-]*$")
 WINDOW_PLACEHOLDER = "{{window}}"
+# Identity labels the generator writes on every series and later rules select on.
+RESERVED_LABELS = ("slo_service", "slo_name", "slo_owner", "slo_window")
 
 
 class SpecError(Exception):
@@ -120,6 +122,17 @@ class Spec(_Strict):
     def _service(cls, value: str) -> str:
         if not _NAME.match(value):
             raise ValueError("use lowercase letters, digits and dashes, starting with a letter")
+        return value
+
+    @field_validator("labels")
+    @classmethod
+    def _no_reserved_labels(cls, value: dict[str, str]) -> dict[str, str]:
+        clash = sorted(set(value) & set(RESERVED_LABELS))
+        if clash:
+            raise ValueError(
+                f"reserved label name(s) {', '.join(clash)}: the generator sets these on every series "
+                "and its rules select on them. Use 'service' or 'owner', or pick another label name"
+            )
         return value
 
     @model_validator(mode="after")
