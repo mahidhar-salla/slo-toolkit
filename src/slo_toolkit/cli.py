@@ -100,7 +100,7 @@ def calc(
 @app.command()
 def validate(
     specs: Annotated[list[Path], typer.Argument(help="One or more spec files.")],
-    promtool: Annotated[bool, typer.Option(help="Also run `promtool check rules` on the generated rules.")] = False,
+    promtool: Annotated[bool, typer.Option(help="Also run `promtool check rules`; fails if it is missing.")] = False,
 ) -> None:
     """Check specs for errors (and optionally lint the generated rules with promtool)."""
     failed = False
@@ -123,8 +123,9 @@ def validate(
 def _promtool_check(spec: Spec) -> bool:
     binary = shutil.which("promtool")
     if not binary:
-        err.print("  [yellow]promtool not found on PATH; skipping rule lint[/yellow]")
-        return True
+        # --promtool was asked for, so a missing binary is a failed check, not a skip.
+        err.print("  [red]✗[/red] promtool not found on PATH; install it or drop --promtool")
+        return False
     import tempfile
 
     with tempfile.NamedTemporaryFile("w", suffix=".rules.yaml", delete=False) as fh:

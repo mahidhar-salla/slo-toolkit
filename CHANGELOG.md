@@ -18,6 +18,9 @@ All notable changes to this project are listed here. The format follows
   rules while the derived rules still selected on the real service and SLO name, so
   `slo:period_error:ratio` and budget remaining silently matched nothing. `validate` and
   `generate` now reject the spec with a readable error. Other custom labels are unchanged.
+- `validate --promtool` now fails (exit 1) when `promtool` is not on PATH. It used to print
+  a skip notice and exit 0, so a requested rule lint could pass without running. Without
+  `--promtool`, `validate` does not need promtool and behaves as before.
 
 ## [0.1.0] - 2026-10-11
 
