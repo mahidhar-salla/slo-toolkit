@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import csv
 import json
+import math
 import urllib.parse
 import urllib.request
 from bisect import bisect_right
@@ -76,6 +77,28 @@ def _iso(ts: int) -> str:
     return datetime.fromtimestamp(ts, tz=UTC).strftime("%Y-%m-%d %H:%MZ")
 
 
+def _parse_row(row: dict[str, str], where: str) -> tuple[int, float, float]:
+    """One CSV row as (ts, good, total). Rejects counts that would silently corrupt the report."""
+    try:
+        ts = _parse_ts(row["timestamp"])
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"{where}: bad timestamp {row['timestamp']!r}") from exc
+    counts: dict[str, float] = {}
+    for column in ("good", "total"):
+        try:
+            value = float(row[column])
+        except (TypeError, ValueError) as exc:
+            raise ValueError(f"{where}: {column} {row[column]!r} is not a number") from exc
+        # NaN/Inf and negative counts would flow into the window sums and come out as status OK
+        # with an SLI of NaN or far above 100%.
+        if not math.isfinite(value) or value < 0:
+            raise ValueError(f"{where}: {column} must be a finite count >= 0, got {row[column]!r}")
+        counts[column] = value
+    if counts["good"] > counts["total"]:
+        raise ValueError(f"{where}: good ({row['good']}) is greater than total ({row['total']})")
+    return ts, counts["good"], counts["total"]
+
+
 def load_csv(path: str | Path) -> dict[str, list[tuple[int, float, float]]]:
     series: dict[str, list[tuple[int, float, float]]] = defaultdict(list)
     with open(path, newline="") as fh:
@@ -84,7 +107,8 @@ def load_csv(path: str | Path) -> dict[str, list[tuple[int, float, float]]]:
         if missing:
             raise ValueError(f"{path}: missing CSV columns: {', '.join(sorted(missing))}")
         for row in reader:
-            series[row["slo"]].append((_parse_ts(row["timestamp"]), float(row["good"]), float(row["total"])))
+            where = f"{path}, line {reader.line_num} (SLO {row['slo']!r})"
+            series[row["slo"]].append(_parse_row(row, where))
     for rows in series.values():
         rows.sort()
     return series

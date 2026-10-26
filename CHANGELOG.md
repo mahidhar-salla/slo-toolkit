@@ -21,6 +21,10 @@ All notable changes to this project are listed here. The format follows
 - `validate --promtool` now fails (exit 1) when `promtool` is not on PATH. It used to print
   a skip notice and exit 0, so a requested rule lint could pass without running. Without
   `--promtool`, `validate` does not need promtool and behaves as before.
+- `report --data` now rejects CSV rows whose `good` or `total` is NaN, infinite, negative or
+  not a number, or where `good` is greater than `total`, and names the file, line and SLO
+  (exit 1). One such row used to pass through, and the report showed status OK with an SLI
+  of NaN or several hundred percent and exited 0. Zero and fractional counts are still accepted.
 
 ## [0.1.0] - 2026-10-11
 
