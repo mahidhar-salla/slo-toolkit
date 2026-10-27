@@ -18,6 +18,17 @@ WINDOW_PLACEHOLDER = "{{window}}"
 RESERVED_LABELS = ("slo_service", "slo_name", "slo_owner", "slo_window")
 
 
+def _check_label_names(value: dict[str, str]) -> dict[str, str]:
+    """Reject label names Prometheus won't load: empty, or starting with `__` (reserved)."""
+    bad = sorted(repr(name) for name in value if name == "" or name.startswith("__"))
+    if bad:
+        raise ValueError(
+            f"invalid label name(s) {', '.join(bad)}: label names can't be empty, and names "
+            "starting with '__' are reserved for Prometheus internal use"
+        )
+    return value
+
+
 class SpecError(Exception):
     """Raised with a readable message when a spec file can't be loaded."""
 
@@ -78,6 +89,11 @@ class Alerting(_Strict):
     ticket_labels: dict[str, str] = Field(default_factory=lambda: {"severity": "ticket"})
     runbook_url: str | None = None
 
+    @field_validator("page_labels", "ticket_labels")
+    @classmethod
+    def _label_names(cls, value: dict[str, str]) -> dict[str, str]:
+        return _check_label_names(value)
+
     @property
     def policy(self) -> tuple[PolicyStep, ...]:
         return POLICIES[self.profile]
@@ -127,6 +143,7 @@ class Spec(_Strict):
     @field_validator("labels")
     @classmethod
     def _no_reserved_labels(cls, value: dict[str, str]) -> dict[str, str]:
+        _check_label_names(value)
         clash = sorted(set(value) & set(RESERVED_LABELS))
         if clash:
             raise ValueError(

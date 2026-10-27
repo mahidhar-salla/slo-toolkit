@@ -25,6 +25,11 @@ All notable changes to this project are listed here. The format follows
   not a number, or where `good` is greater than `total`, and names the file, line and SLO
   (exit 1). One such row used to pass through, and the report showed status OK with an SLI
   of NaN or several hundred percent and exited 0. Zero and fractional counts are still accepted.
+- Spec `labels`, `page_labels` and `ticket_labels` now reject empty label names and names
+  starting with `__`, which Prometheus reserves for internal use. `validate` and `generate`
+  used to accept `__name__` or `""` and write rules that promtool rejects with "invalid label
+  name", so the rule group would not load. Other names, including UTF-8 names that
+  Prometheus 3 accepts, are unchanged.
 
 ## [0.1.0] - 2026-10-11
 
