@@ -49,7 +49,15 @@ def error_budget(objective_pct: float) -> float:
     """Allowed error ratio, e.g. 99.9 -> 0.001."""
     if not 0 < objective_pct < 100:
         raise ValueError("objective must be between 0 and 100 (exclusive)")
-    return round(1 - objective_pct / 100, 10)
+    budget = round(1 - objective_pct / 100, 10)
+    if budget <= 0:
+        # Rounding to 10 places turns objectives within 5e-9 % of 100 into a zero budget,
+        # which would divide by zero in rules and reports and alert on any error at all.
+        raise ValueError(
+            f"objective {objective_pct}% is too close to 100%: the error budget rounds to 0 "
+            "at 10 decimal places (99.99999999 still works)"
+        )
+    return budget
 
 
 def allowed_downtime_seconds(objective_pct: float, window: str) -> float:

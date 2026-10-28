@@ -30,6 +30,11 @@ All notable changes to this project are listed here. The format follows
   used to accept `__name__` or `""` and write rules that promtool rejects with "invalid label
   name", so the rule group would not load. Other names, including UTF-8 names that
   Prometheus 3 accepts, are unchanged.
+- An objective so close to 100% that its error budget rounds to 0 (e.g. `99.99999999999`) is
+  now rejected by `validate`, `generate` and `report`. It used to pass validation and generate
+  rules that divide by zero for budget remaining and page on any error at all, and `report`
+  crashed with a ZeroDivisionError. `99.99999999` (a 1e-10 budget) and every ordinary
+  objective are unchanged.
 
 ## [0.1.0] - 2026-10-11
 

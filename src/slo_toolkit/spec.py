@@ -114,6 +114,12 @@ class SLO(_Strict):
             raise ValueError("use lowercase letters, digits and dashes, starting with a letter")
         return value
 
+    @field_validator("objective")
+    @classmethod
+    def _objective_has_budget(cls, value: float) -> float:
+        error_budget(value)  # raises if the budget rounds to zero
+        return value
+
     @field_validator("window")
     @classmethod
     def _window(cls, value: str) -> str:
