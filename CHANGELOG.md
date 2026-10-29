@@ -35,6 +35,9 @@ All notable changes to this project are listed here. The format follows
   rules that divide by zero for budget remaining and page on any error at all, and `report`
   crashed with a ZeroDivisionError. `99.99999999` (a 1e-10 budget) and every ordinary
   objective are unchanged.
+- `calc` now reports an objective outside (0, 100), an objective so close to 100 that the
+  error budget rounds to 0, or a malformed `--window` as a one-line error and exits 2, like an
+  unknown `--profile`. It used to crash with a Python traceback (exit 1).
 
 ## [0.1.0] - 2026-10-11
 

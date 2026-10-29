@@ -71,7 +71,12 @@ def calc(
     if profile not in POLICIES:
         err.print(f"[red]unknown profile {profile!r}[/red]; choose from {', '.join(POLICIES)}")
         raise typer.Exit(2)
-    budget = error_budget(objective)
+    try:
+        budget = error_budget(objective)
+        to_seconds(window)
+    except ValueError as exc:
+        err.print(f"[red]✗[/red] {exc}")
+        raise typer.Exit(2) from exc
     console.print(
         f"[bold]{objective:g}% over {window}[/bold]: error budget {budget:.4%} "
         f"= {humanize(allowed_downtime_seconds(objective, window))} of full outage"
