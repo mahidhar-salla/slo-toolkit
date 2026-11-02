@@ -51,7 +51,17 @@ pipx install git+https://github.com/mahidhar-salla/slo-toolkit
 slo-toolkit calc --objective 99.9 --window 30d
 ```
 
-![slo-toolkit calc output](docs/img/calc.png)
+```text
+99.9% over 30d: error budget 0.1000% = 43.2 min of full outage
+┏━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┓
+┃ Severity ┃ Long / short window ┃ Burn rate ┃ Fires above error ratio ┃ Budget spent at fire ┃ Full budget gone in ┃
+┡━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━┩
+│ page     │ 1h / 5m             │ 14.4x     │ 1.4400%                 │ 2%                   │ 2.1 d               │
+│ page     │ 6h / 30m            │ 6x        │ 0.6000%                 │ 5%                   │ 5.0 d               │
+│ ticket   │ 1d / 2h             │ 3x        │ 0.3000%                 │ 10%                  │ 10.0 d              │
+│ ticket   │ 3d / 6h             │ 1x        │ 0.1000%                 │ 10%                  │ 30.0 d              │
+└──────────┴─────────────────────┴───────────┴─────────────────────────┴──────────────────────┴─────────────────────┘
+```
 
 ## The spec
 
