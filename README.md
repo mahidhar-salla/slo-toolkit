@@ -88,6 +88,15 @@ The generated output for this spec is committed, so you can read it without inst
 
 `report` prints text, Markdown (`-f markdown`, handy for a weekly review or a ticket) or JSON, and exits with code 3 when an SLO is already missed, so it can gate a pipeline.
 
+### Exit codes
+
+| Code | Meaning |
+|---|---|
+| 0 | Success. For `report`, no SLO is missed. |
+| 1 | A spec that is missing or fails validation (`validate`, `generate`, `report`, `simulate`); `validate --promtool` when `promtool` isn't on `PATH`; `report` data it can't use (missing CSV, unusable rows, Prometheus unreachable). |
+| 2 | Bad command-line input: a `calc` objective outside (0, 100) or a malformed window, an unknown `--profile`, an unknown `--slo`, `report` without exactly one of `--data` / `--prometheus-url`, or an unknown option. |
+| 3 | `report` printed its output, and at least one SLO is already missed. |
+
 ## How the alerts work
 
 Each SLO gets recording rules for the error ratio over 5m, 30m, 1h, 2h, 6h, 1d and 3d, plus two alerts. An alert fires only when **both** a long and a short window are burning budget too fast: the long window proves it matters, the short one proves it is still happening, so the alert clears within minutes of recovery.
