@@ -18,5 +18,5 @@ Rough order, not promises. Ideas and votes welcome in issues.
 - Multi-service roll-up dashboard.
 
 ## Not planned
-- A UI or a Kubernetes operator. [Pyrra](https://github.com/pyrra-dev/pyrra) and
+- A UI or a Kubernetes operator. [Pyrra](https://github.com/prometheus-community/pyrra) and
   [Sloth](https://github.com/slok/sloth) do those well.

@@ -133,7 +133,7 @@ Generated output for each is committed under `examples/*/out/`, and CI fails if 
 
 ## How it compares
 
-[Sloth](https://github.com/slok/sloth) and [Pyrra](https://github.com/pyrra-dev/pyrra) are the established tools here, and if you run Kubernetes at scale you probably want one of them: Sloth has an operator, SLI plugins and OpenSLO support; Pyrra has a UI and an operator. slo-toolkit is smaller and aimed at a different moment:
+[Sloth](https://github.com/slok/sloth) and [Pyrra](https://github.com/prometheus-community/pyrra) are the established tools here, and if you run Kubernetes at scale you probably want one of them: Sloth has an operator, SLI plugins and OpenSLO support; Pyrra has a UI and an operator. slo-toolkit is smaller and aimed at a different moment:
 
 - **Before you commit to alerting:** `calc` and `report --data` let you test an objective against history and see which alerts would have fired, without deploying anything.
 - **Python and plain files:** a `pip install`, no cluster needed, easy to read and change.
