@@ -150,6 +150,8 @@ The chart creates a `PrometheusRule` (for prometheus-operator / kube-prometheus-
 
 Generated output for each is committed under `examples/*/out/`, and CI fails if it goes stale.
 
+For a step-by-step run on synthetic data (`simulate`, `report -f markdown`, `generate`, `promtool test rules`), see [Worked example: test an objective against history before deploying](docs/worked-example.md).
+
 ## How it compares
 
 [Sloth](https://github.com/slok/sloth) and [Pyrra](https://github.com/prometheus-community/pyrra) are the established tools here, and if you run Kubernetes at scale you probably want one of them: Sloth has an operator, SLI plugins and OpenSLO support; Pyrra has a UI and an operator. slo-toolkit is smaller and aimed at a different moment:
