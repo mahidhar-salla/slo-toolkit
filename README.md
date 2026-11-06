@@ -118,7 +118,7 @@ Each SLO gets recording rules for the error ratio over 5m, 30m, 1h, 2h, 6h, 1d a
 | ticket | 1d / 2h | 10% | 3x |
 | ticket | 3d / 6h | 10% | 1x |
 
-These are the workbook's recommended starting points (Table 5-8, plus the 1d/2h ticket step from its example configuration; `profile: workbook-table` uses only the three table rows). Burn rates are derived from "share of budget spent", so a 28d window gets 13.44x instead of a hard-coded 14.4x. Generated rules come with `promtool` unit tests in [`tests/promtool/`](tests/promtool/), including one that checks the page clears once errors stop. There's a short [runbook](docs/runbooks/error-budget-burn.md) for the alerts too.
+These are the workbook's recommended starting points (Table 5-8, plus the 1d/2h ticket step from its example configuration; `profile: workbook-table` uses only the three table rows). Burn rates are derived from "share of budget spent", so a 28d window gets 13.44x instead of a hard-coded 14.4x. The `checkout-api` availability rules come with `promtool` unit tests in [`tests/promtool/`](tests/promtool/), including one that checks the page clears once errors stop (see Limitations for what is not covered yet). There's a short [runbook](docs/runbooks/error-budget-burn.md) for the alerts too.
 
 ## Run it against real Prometheus and Grafana
 
@@ -173,6 +173,7 @@ This is the small, open version of that toolkit, written from scratch. It contai
 - Ratio SLIs only; latency uses a histogram bucket query you write yourself (see the roadmap).
 - Low-traffic services can page on a handful of errors; the workbook's advice (synthetic traffic, aggregation, or a lower objective) still applies.
 - `report --prometheus-url` shows current state only; history replay needs CSV data.
+- The `promtool` behavior fixtures in [`tests/promtool/`](tests/promtool/) cover the `checkout-api` **availability** SLO only (five scenarios in `checkout-api.test.yaml`: sustained errors, healthy quiet, page-clear-on-recovery, period error ratio, and a no-traffic stretch). The latency, batch, freshness and gauge examples still generate rules and pass `make check-examples` / `promtool check rules`, but they do not yet have their own alert-behavior tests.
 
 See [ROADMAP.md](ROADMAP.md) for what's next.
 
