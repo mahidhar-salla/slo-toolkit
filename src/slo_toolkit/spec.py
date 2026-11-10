@@ -66,12 +66,14 @@ class SLI(_Strict):
         """PromQL for the bad event rate over `window`.
 
         A `bad` query falls back to 0 when it matches nothing (no 5xx series yet), so the
-        budget doesn't go blank on a clean service. A `good` query is turned into total - good.
+        budget doesn't go blank on a clean service. A `good` query is turned into total - good,
+        with the same fallback on `good`: a filtering query (lag < 5000) that matches nothing
+        means every event was bad, not that there is no data.
         """
         if self.bad is not None:
             return f"({self.bad.replace(WINDOW_PLACEHOLDER, window).strip()}) or vector(0)"
         good = (self.good or "").replace(WINDOW_PLACEHOLDER, window).strip()
-        return f"({self.total_expr(window)})\n-\n({good})"
+        return f"({self.total_expr(window)})\n-\n(({good}) or vector(0))"
 
     def error_ratio_expr(self, window: str) -> str:
         """PromQL for the error ratio over `window`."""
@@ -80,7 +82,7 @@ class SLI(_Strict):
             bad = self.bad.replace(WINDOW_PLACEHOLDER, window).strip()
             return f"({bad})\n/\n({total})"
         good = (self.good or "").replace(WINDOW_PLACEHOLDER, window).strip()
-        return f"1 - (\n  ({good})\n  /\n  ({total})\n)"
+        return f"1 - (\n  (({good}) or vector(0))\n  /\n  ({total})\n)"
 
 
 class Alerting(_Strict):

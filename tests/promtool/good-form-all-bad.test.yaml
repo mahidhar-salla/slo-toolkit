@@ -1,0 +1,90 @@
+# promtool regression tests: good-form SLIs whose good query filters samples (kafka lag,
+# batch freshness) when no minute passes the filter (synthetic series).
+# Run: promtool test rules tests/promtool/good-form-all-bad.test.yaml
+rule_files:
+- ../../examples/kafka-consumer/out/payment-events-consumer.rules.yaml
+- ../../examples/batch-job/out/nightly-statements.rules.yaml
+evaluation_interval: 1m
+tests:
+# Lag over 5000 every minute: the good query matches nothing, which is 0 good minutes,
+# so the error ratio is 1 (not absent) and both burn alerts fire.
+- name: kafka lag above 5000 every minute reads as 100% bad and pages
+  interval: 1m
+  input_series:
+  - series: kafka_consumergroup_lag{consumergroup="payment-events",partition="0"}
+    values: 10000x90
+  promql_expr_test:
+  - expr: slo:sli_error:ratio_rate5m{slo_service="payment-events-consumer", slo_name="lag"}
+    eval_time: 60m
+    exp_samples:
+    - labels: slo:sli_error:ratio_rate5m{slo_service="payment-events-consumer", slo_name="lag", slo_owner="payments-platform"}
+      value: 1
+  alert_rule_test:
+  - eval_time: 60m
+    alertname: PaymentEventsConsumerLagErrorBudgetBurn
+    exp_alerts:
+    - exp_labels:
+        severity: page
+        slo_service: payment-events-consumer
+        slo_name: lag
+        slo_owner: payments-platform
+      exp_annotations:
+        summary: payment-events-consumer lag SLO is burning its error budget too fast
+        description: 'Objective 99.5% over 30d. Fires when the error rate would spend 2% of the 30d budget in 1h (burn rate 14.4x, confirmed over 5m); 5% of the 30d budget in 6h (burn rate 6x, confirmed over 30m). Long-window error ratio: 100%.'
+    - exp_labels:
+        severity: ticket
+        slo_service: payment-events-consumer
+        slo_name: lag
+        slo_owner: payments-platform
+      exp_annotations:
+        summary: payment-events-consumer lag SLO is burning its error budget too fast
+        description: 'Objective 99.5% over 30d. Fires when the error rate would spend 10% of the 30d budget in 1d (burn rate 3x, confirmed over 2h); 10% of the 30d budget in 3d (burn rate 1x, confirmed over 6h). Long-window error ratio: 100%.'
+# Lag fine for minutes 0-29, above 5000 for minutes 30-60. Each 5m window holds the 1m
+# samples in (t-5m, t], so it has min(t+1, 5) minutes of total. Bad minutes per window:
+# t=30..33 -> 1..4, t=34..60 -> 5 (sum 10 + 27*5 = 145). Total: t=0..3 -> 1..4, t=4..60 -> 5
+# (sum 10 + 57*5 = 295). Period error ratio at 60m = 145/295 = 29/59. The all-bad stretch
+# used to count as good (10/295).
+- name: kafka lag bad for the second half hour counts in the period error ratio
+  interval: 1m
+  input_series:
+  - series: kafka_consumergroup_lag{consumergroup="payment-events",partition="0"}
+    values: 100x29 10000x31
+  promql_expr_test:
+  # Mixed window (minutes 28-32: 2 good of 5): the fallback leaves a present good query alone.
+  - expr: slo:sli_error:ratio_rate5m{slo_service="payment-events-consumer", slo_name="lag"}
+    eval_time: 32m
+    exp_samples:
+    - labels: slo:sli_error:ratio_rate5m{slo_service="payment-events-consumer", slo_name="lag", slo_owner="payments-platform"}
+      value: 0.6
+  - expr: slo:sli_bad:rate5m{slo_service="payment-events-consumer", slo_name="lag"}
+    eval_time: 60m
+    exp_samples:
+    - labels: slo:sli_bad:rate5m{slo_service="payment-events-consumer", slo_name="lag", slo_owner="payments-platform"}
+      value: 5
+  - expr: slo:period_error:ratio{slo_service="payment-events-consumer", slo_name="lag"}
+    eval_time: 60m
+    exp_samples:
+    - labels: slo:period_error:ratio{slo_service="payment-events-consumer", slo_name="lag", slo_owner="payments-platform", slo_window="30d"}
+      value: 0.4915254237288136
+# Last success far older than 26h all hour: no fresh minute, so the error ratio is 1.
+- name: batch freshness stale every minute reads as 100% bad
+  interval: 1m
+  input_series:
+  - series: batch_job_last_success_timestamp_seconds{job="nightly-statements"}
+    values: -200000x90
+  promql_expr_test:
+  - expr: slo:sli_error:ratio_rate5m{slo_service="nightly-statements", slo_name="freshness"}
+    eval_time: 60m
+    exp_samples:
+    - labels: slo:sli_error:ratio_rate5m{slo_service="nightly-statements", slo_name="freshness", slo_owner="data-platform"}
+      value: 1
+# No lag series at all: total is empty too, so the ratio stays absent (no data is not 100% bad).
+- name: kafka no lag series leaves the error ratio absent
+  interval: 1m
+  input_series:
+  - series: unrelated_metric{job="other"}
+    values: 1x90
+  promql_expr_test:
+  - expr: slo:sli_error:ratio_rate5m{slo_service="payment-events-consumer", slo_name="lag"}
+    eval_time: 60m
+    exp_samples: []

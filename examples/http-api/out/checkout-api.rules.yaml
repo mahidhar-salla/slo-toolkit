@@ -167,7 +167,7 @@ groups:
   - record: slo:sli_error:ratio_rate5m
     expr: |-
       1 - (
-        (sum(rate(http_request_duration_seconds_bucket{job="checkout-api",le="0.3"}[5m])))
+        ((sum(rate(http_request_duration_seconds_bucket{job="checkout-api",le="0.3"}[5m]))) or vector(0))
         /
         (sum(rate(http_request_duration_seconds_count{job="checkout-api"}[5m])))
       )
@@ -179,7 +179,7 @@ groups:
   - record: slo:sli_error:ratio_rate30m
     expr: |-
       1 - (
-        (sum(rate(http_request_duration_seconds_bucket{job="checkout-api",le="0.3"}[30m])))
+        ((sum(rate(http_request_duration_seconds_bucket{job="checkout-api",le="0.3"}[30m]))) or vector(0))
         /
         (sum(rate(http_request_duration_seconds_count{job="checkout-api"}[30m])))
       )
@@ -191,7 +191,7 @@ groups:
   - record: slo:sli_error:ratio_rate1h
     expr: |-
       1 - (
-        (sum(rate(http_request_duration_seconds_bucket{job="checkout-api",le="0.3"}[1h])))
+        ((sum(rate(http_request_duration_seconds_bucket{job="checkout-api",le="0.3"}[1h]))) or vector(0))
         /
         (sum(rate(http_request_duration_seconds_count{job="checkout-api"}[1h])))
       )
@@ -203,7 +203,7 @@ groups:
   - record: slo:sli_error:ratio_rate2h
     expr: |-
       1 - (
-        (sum(rate(http_request_duration_seconds_bucket{job="checkout-api",le="0.3"}[2h])))
+        ((sum(rate(http_request_duration_seconds_bucket{job="checkout-api",le="0.3"}[2h]))) or vector(0))
         /
         (sum(rate(http_request_duration_seconds_count{job="checkout-api"}[2h])))
       )
@@ -215,7 +215,7 @@ groups:
   - record: slo:sli_error:ratio_rate6h
     expr: |-
       1 - (
-        (sum(rate(http_request_duration_seconds_bucket{job="checkout-api",le="0.3"}[6h])))
+        ((sum(rate(http_request_duration_seconds_bucket{job="checkout-api",le="0.3"}[6h]))) or vector(0))
         /
         (sum(rate(http_request_duration_seconds_count{job="checkout-api"}[6h])))
       )
@@ -227,7 +227,7 @@ groups:
   - record: slo:sli_error:ratio_rate1d
     expr: |-
       1 - (
-        (sum(rate(http_request_duration_seconds_bucket{job="checkout-api",le="0.3"}[1d])))
+        ((sum(rate(http_request_duration_seconds_bucket{job="checkout-api",le="0.3"}[1d]))) or vector(0))
         /
         (sum(rate(http_request_duration_seconds_count{job="checkout-api"}[1d])))
       )
@@ -239,7 +239,7 @@ groups:
   - record: slo:sli_error:ratio_rate3d
     expr: |-
       1 - (
-        (sum(rate(http_request_duration_seconds_bucket{job="checkout-api",le="0.3"}[3d])))
+        ((sum(rate(http_request_duration_seconds_bucket{job="checkout-api",le="0.3"}[3d]))) or vector(0))
         /
         (sum(rate(http_request_duration_seconds_count{job="checkout-api"}[3d])))
       )
@@ -252,7 +252,7 @@ groups:
     expr: |-
       (sum(rate(http_request_duration_seconds_count{job="checkout-api"}[5m])))
       -
-      (sum(rate(http_request_duration_seconds_bucket{job="checkout-api",le="0.3"}[5m])))
+      ((sum(rate(http_request_duration_seconds_bucket{job="checkout-api",le="0.3"}[5m]))) or vector(0))
     labels:
       slo_service: checkout-api
       slo_name: latency

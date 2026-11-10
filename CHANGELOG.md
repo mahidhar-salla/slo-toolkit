@@ -38,6 +38,13 @@ All notable changes to this project are listed here. The format follows
 - `calc` now reports an objective outside (0, 100), an objective so close to 100 that the
   error budget rounds to 0, or a malformed `--window` as a one-line error and exits 2, like an
   unknown `--profile`. It used to crash with a Python traceback (exit 1).
+- A `good` query that matches nothing now reads as zero good events, the same fallback the
+  `bad` form already had. A filtering `good` query, such as the Kafka lag (`lag < 5000`) and
+  batch freshness examples, returns no series when every minute is bad, so the error ratio,
+  `slo:sli_bad:rate5m` and the burn alerts went blank during a full outage, and
+  `slo:period_error:ratio` counted the all-bad stretch as good. The error ratio is now 1 and the
+  alerts fire. With no `total` series at all the ratio is still absent. This changes the
+  generated rules for every `good`-form SLI; `bad`-form SLIs are unchanged.
 
 ## [0.1.0] - 2026-10-11
 

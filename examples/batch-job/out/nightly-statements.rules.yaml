@@ -6,7 +6,7 @@ groups:
   - record: slo:sli_error:ratio_rate5m
     expr: |-
       1 - (
-        (sum(increase(batch_job_runs_total{job="nightly-statements",result="success"}[5m])))
+        ((sum(increase(batch_job_runs_total{job="nightly-statements",result="success"}[5m]))) or vector(0))
         /
         (sum(increase(batch_job_runs_total{job="nightly-statements"}[5m])))
       )
@@ -17,7 +17,7 @@ groups:
   - record: slo:sli_error:ratio_rate30m
     expr: |-
       1 - (
-        (sum(increase(batch_job_runs_total{job="nightly-statements",result="success"}[30m])))
+        ((sum(increase(batch_job_runs_total{job="nightly-statements",result="success"}[30m]))) or vector(0))
         /
         (sum(increase(batch_job_runs_total{job="nightly-statements"}[30m])))
       )
@@ -28,7 +28,7 @@ groups:
   - record: slo:sli_error:ratio_rate1h
     expr: |-
       1 - (
-        (sum(increase(batch_job_runs_total{job="nightly-statements",result="success"}[1h])))
+        ((sum(increase(batch_job_runs_total{job="nightly-statements",result="success"}[1h]))) or vector(0))
         /
         (sum(increase(batch_job_runs_total{job="nightly-statements"}[1h])))
       )
@@ -39,7 +39,7 @@ groups:
   - record: slo:sli_error:ratio_rate6h
     expr: |-
       1 - (
-        (sum(increase(batch_job_runs_total{job="nightly-statements",result="success"}[6h])))
+        ((sum(increase(batch_job_runs_total{job="nightly-statements",result="success"}[6h]))) or vector(0))
         /
         (sum(increase(batch_job_runs_total{job="nightly-statements"}[6h])))
       )
@@ -50,7 +50,7 @@ groups:
   - record: slo:sli_error:ratio_rate3d
     expr: |-
       1 - (
-        (sum(increase(batch_job_runs_total{job="nightly-statements",result="success"}[3d])))
+        ((sum(increase(batch_job_runs_total{job="nightly-statements",result="success"}[3d]))) or vector(0))
         /
         (sum(increase(batch_job_runs_total{job="nightly-statements"}[3d])))
       )
@@ -62,7 +62,7 @@ groups:
     expr: |-
       (sum(increase(batch_job_runs_total{job="nightly-statements"}[5m])))
       -
-      (sum(increase(batch_job_runs_total{job="nightly-statements",result="success"}[5m])))
+      ((sum(increase(batch_job_runs_total{job="nightly-statements",result="success"}[5m]))) or vector(0))
     labels:
       slo_service: nightly-statements
       slo_name: runs
@@ -142,7 +142,7 @@ groups:
   - record: slo:sli_error:ratio_rate5m
     expr: |-
       1 - (
-        (sum(count_over_time(((time() - batch_job_last_success_timestamp_seconds{job="nightly-statements"}) < 93600)[5m:1m])))
+        ((sum(count_over_time(((time() - batch_job_last_success_timestamp_seconds{job="nightly-statements"}) < 93600)[5m:1m]))) or vector(0))
         /
         (sum(count_over_time(batch_job_last_success_timestamp_seconds{job="nightly-statements"}[5m:1m])))
       )
@@ -153,7 +153,7 @@ groups:
   - record: slo:sli_error:ratio_rate30m
     expr: |-
       1 - (
-        (sum(count_over_time(((time() - batch_job_last_success_timestamp_seconds{job="nightly-statements"}) < 93600)[30m:1m])))
+        ((sum(count_over_time(((time() - batch_job_last_success_timestamp_seconds{job="nightly-statements"}) < 93600)[30m:1m]))) or vector(0))
         /
         (sum(count_over_time(batch_job_last_success_timestamp_seconds{job="nightly-statements"}[30m:1m])))
       )
@@ -164,7 +164,7 @@ groups:
   - record: slo:sli_error:ratio_rate1h
     expr: |-
       1 - (
-        (sum(count_over_time(((time() - batch_job_last_success_timestamp_seconds{job="nightly-statements"}) < 93600)[1h:1m])))
+        ((sum(count_over_time(((time() - batch_job_last_success_timestamp_seconds{job="nightly-statements"}) < 93600)[1h:1m]))) or vector(0))
         /
         (sum(count_over_time(batch_job_last_success_timestamp_seconds{job="nightly-statements"}[1h:1m])))
       )
@@ -175,7 +175,7 @@ groups:
   - record: slo:sli_error:ratio_rate2h
     expr: |-
       1 - (
-        (sum(count_over_time(((time() - batch_job_last_success_timestamp_seconds{job="nightly-statements"}) < 93600)[2h:1m])))
+        ((sum(count_over_time(((time() - batch_job_last_success_timestamp_seconds{job="nightly-statements"}) < 93600)[2h:1m]))) or vector(0))
         /
         (sum(count_over_time(batch_job_last_success_timestamp_seconds{job="nightly-statements"}[2h:1m])))
       )
@@ -186,7 +186,7 @@ groups:
   - record: slo:sli_error:ratio_rate6h
     expr: |-
       1 - (
-        (sum(count_over_time(((time() - batch_job_last_success_timestamp_seconds{job="nightly-statements"}) < 93600)[6h:1m])))
+        ((sum(count_over_time(((time() - batch_job_last_success_timestamp_seconds{job="nightly-statements"}) < 93600)[6h:1m]))) or vector(0))
         /
         (sum(count_over_time(batch_job_last_success_timestamp_seconds{job="nightly-statements"}[6h:1m])))
       )
@@ -197,7 +197,7 @@ groups:
   - record: slo:sli_error:ratio_rate1d
     expr: |-
       1 - (
-        (sum(count_over_time(((time() - batch_job_last_success_timestamp_seconds{job="nightly-statements"}) < 93600)[1d:1m])))
+        ((sum(count_over_time(((time() - batch_job_last_success_timestamp_seconds{job="nightly-statements"}) < 93600)[1d:1m]))) or vector(0))
         /
         (sum(count_over_time(batch_job_last_success_timestamp_seconds{job="nightly-statements"}[1d:1m])))
       )
@@ -208,7 +208,7 @@ groups:
   - record: slo:sli_error:ratio_rate3d
     expr: |-
       1 - (
-        (sum(count_over_time(((time() - batch_job_last_success_timestamp_seconds{job="nightly-statements"}) < 93600)[3d:1m])))
+        ((sum(count_over_time(((time() - batch_job_last_success_timestamp_seconds{job="nightly-statements"}) < 93600)[3d:1m]))) or vector(0))
         /
         (sum(count_over_time(batch_job_last_success_timestamp_seconds{job="nightly-statements"}[3d:1m])))
       )
@@ -220,7 +220,7 @@ groups:
     expr: |-
       (sum(count_over_time(batch_job_last_success_timestamp_seconds{job="nightly-statements"}[5m:1m])))
       -
-      (sum(count_over_time(((time() - batch_job_last_success_timestamp_seconds{job="nightly-statements"}) < 93600)[5m:1m])))
+      ((sum(count_over_time(((time() - batch_job_last_success_timestamp_seconds{job="nightly-statements"}) < 93600)[5m:1m]))) or vector(0))
     labels:
       slo_service: nightly-statements
       slo_name: freshness

@@ -6,7 +6,7 @@ groups:
   - record: slo:sli_error:ratio_rate5m
     expr: |-
       1 - (
-        (sum(count_over_time((sum(kafka_consumergroup_lag{consumergroup="payment-events"}) < 5000)[5m:1m])))
+        ((sum(count_over_time((sum(kafka_consumergroup_lag{consumergroup="payment-events"}) < 5000)[5m:1m]))) or vector(0))
         /
         (sum(count_over_time(sum(kafka_consumergroup_lag{consumergroup="payment-events"})[5m:1m])))
       )
@@ -17,7 +17,7 @@ groups:
   - record: slo:sli_error:ratio_rate30m
     expr: |-
       1 - (
-        (sum(count_over_time((sum(kafka_consumergroup_lag{consumergroup="payment-events"}) < 5000)[30m:1m])))
+        ((sum(count_over_time((sum(kafka_consumergroup_lag{consumergroup="payment-events"}) < 5000)[30m:1m]))) or vector(0))
         /
         (sum(count_over_time(sum(kafka_consumergroup_lag{consumergroup="payment-events"})[30m:1m])))
       )
@@ -28,7 +28,7 @@ groups:
   - record: slo:sli_error:ratio_rate1h
     expr: |-
       1 - (
-        (sum(count_over_time((sum(kafka_consumergroup_lag{consumergroup="payment-events"}) < 5000)[1h:1m])))
+        ((sum(count_over_time((sum(kafka_consumergroup_lag{consumergroup="payment-events"}) < 5000)[1h:1m]))) or vector(0))
         /
         (sum(count_over_time(sum(kafka_consumergroup_lag{consumergroup="payment-events"})[1h:1m])))
       )
@@ -39,7 +39,7 @@ groups:
   - record: slo:sli_error:ratio_rate2h
     expr: |-
       1 - (
-        (sum(count_over_time((sum(kafka_consumergroup_lag{consumergroup="payment-events"}) < 5000)[2h:1m])))
+        ((sum(count_over_time((sum(kafka_consumergroup_lag{consumergroup="payment-events"}) < 5000)[2h:1m]))) or vector(0))
         /
         (sum(count_over_time(sum(kafka_consumergroup_lag{consumergroup="payment-events"})[2h:1m])))
       )
@@ -50,7 +50,7 @@ groups:
   - record: slo:sli_error:ratio_rate6h
     expr: |-
       1 - (
-        (sum(count_over_time((sum(kafka_consumergroup_lag{consumergroup="payment-events"}) < 5000)[6h:1m])))
+        ((sum(count_over_time((sum(kafka_consumergroup_lag{consumergroup="payment-events"}) < 5000)[6h:1m]))) or vector(0))
         /
         (sum(count_over_time(sum(kafka_consumergroup_lag{consumergroup="payment-events"})[6h:1m])))
       )
@@ -61,7 +61,7 @@ groups:
   - record: slo:sli_error:ratio_rate1d
     expr: |-
       1 - (
-        (sum(count_over_time((sum(kafka_consumergroup_lag{consumergroup="payment-events"}) < 5000)[1d:1m])))
+        ((sum(count_over_time((sum(kafka_consumergroup_lag{consumergroup="payment-events"}) < 5000)[1d:1m]))) or vector(0))
         /
         (sum(count_over_time(sum(kafka_consumergroup_lag{consumergroup="payment-events"})[1d:1m])))
       )
@@ -72,7 +72,7 @@ groups:
   - record: slo:sli_error:ratio_rate3d
     expr: |-
       1 - (
-        (sum(count_over_time((sum(kafka_consumergroup_lag{consumergroup="payment-events"}) < 5000)[3d:1m])))
+        ((sum(count_over_time((sum(kafka_consumergroup_lag{consumergroup="payment-events"}) < 5000)[3d:1m]))) or vector(0))
         /
         (sum(count_over_time(sum(kafka_consumergroup_lag{consumergroup="payment-events"})[3d:1m])))
       )
@@ -84,7 +84,7 @@ groups:
     expr: |-
       (sum(count_over_time(sum(kafka_consumergroup_lag{consumergroup="payment-events"})[5m:1m])))
       -
-      (sum(count_over_time((sum(kafka_consumergroup_lag{consumergroup="payment-events"}) < 5000)[5m:1m])))
+      ((sum(count_over_time((sum(kafka_consumergroup_lag{consumergroup="payment-events"}) < 5000)[5m:1m]))) or vector(0))
     labels:
       slo_service: payment-events-consumer
       slo_name: lag

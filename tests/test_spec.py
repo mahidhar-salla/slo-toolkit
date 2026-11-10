@@ -2,7 +2,7 @@ import pytest
 
 from slo_toolkit.spec import SpecError, load_spec, warnings_for
 
-from .conftest import EXAMPLES
+from .conftest import EXAMPLES, ROOT
 
 BASE = """
 apiVersion: slo-toolkit/v1
@@ -89,3 +89,20 @@ def test_warnings_for_extreme_objective(write_spec):
 
 def test_no_warnings_for_examples(checkout):
     assert warnings_for(checkout) == []
+
+
+@pytest.mark.parametrize(
+    ("example", "slo_name"),
+    [
+        ("kafka-consumer/payment-events-consumer.slo.yaml", "lag"),
+        ("batch-job/nightly-statements.slo.yaml", "freshness"),
+    ],
+)
+def test_good_form_reads_empty_good_as_zero(example, slo_name):
+    # A filtering good query (lag < 5000, age < 26h) matches nothing when every minute is bad.
+    # That is 0 good events (100% bad), not a blank SLI; total is left alone so no data stays absent.
+    sli = next(s for s in load_spec(ROOT / "examples" / example).slos if s.name == slo_name).sli
+    good = (sli.good or "").replace("{{window}}", "5m").strip()
+    total = sli.total_expr("5m")
+    assert sli.error_ratio_expr("5m") == f"1 - (\n  (({good}) or vector(0))\n  /\n  ({total})\n)"
+    assert sli.bad_expr("5m") == f"({total})\n-\n(({good}) or vector(0))"
