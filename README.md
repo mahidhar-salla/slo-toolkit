@@ -174,6 +174,7 @@ This is the small, open version of that toolkit, written from scratch. It contai
 - Low-traffic services can page on a handful of errors; the workbook's advice (synthetic traffic, aggregation, or a lower objective) still applies.
 - `report --prometheus-url` shows current state only; history replay needs CSV data.
 - The `promtool` behavior fixtures in [`tests/promtool/`](tests/promtool/) cover the `checkout-api` **availability** SLO only (five scenarios in `checkout-api.test.yaml`: sustained errors, healthy quiet, page-clear-on-recovery, period error ratio, and a no-traffic stretch). The latency, batch, freshness and gauge examples still generate rules and pass `make check-examples` / `promtool check rules`, but they do not yet have their own alert-behavior tests.
+- An empty `good` or `bad` query falls back to `vector(0)`, which has no labels, so it only lines up with a fully aggregated query such as `sum(...)` (as in every example). With a label-carrying query like `sum by (job) (...)`, an all-bad window for a `good` SLI records no error ratio and fires no alert, and a `bad` SLI with no error series leaves `slo:period_error:ratio` blank.
 
 See [ROADMAP.md](ROADMAP.md) for what's next.
 
