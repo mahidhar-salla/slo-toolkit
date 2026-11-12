@@ -6,6 +6,8 @@
 and writes nothing.
 """
 
+import re
+
 import pytest
 from typer.testing import CliRunner
 
@@ -14,6 +16,8 @@ from slo_toolkit.cli import app
 from .conftest import ROOT
 
 runner = CliRunner()
+# Strip colour codes: CI forces colour, which splits "--days" in the usage error.
+ANSI = re.compile(r"\x1b\[[0-9;]*m")
 SPEC = str(ROOT / "examples/http-api/checkout-api.slo.yaml")
 
 
@@ -22,7 +26,7 @@ def test_simulate_rejects_days_below_one(tmp_path, days):
     out = tmp_path / "samples.csv"
     result = runner.invoke(app, ["simulate", SPEC, "-o", str(out), f"--days={days}"])
     assert result.exit_code == 2, result.output
-    assert "--days" in result.output
+    assert "--days" in ANSI.sub("", result.output)
     assert not out.exists()
 
 
