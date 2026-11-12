@@ -261,7 +261,7 @@ def report(
 def simulate(
     spec_path: SpecArg,
     out: Annotated[Path, typer.Option("--out", "-o", help="CSV file to write.")] = Path("out/samples.csv"),
-    days: Annotated[int, typer.Option(help="Days of history.")] = 30,
+    days: Annotated[int, typer.Option(min=1, help="Days of history.")] = 30,
     seed: Annotated[int, typer.Option(help="Random seed (output is deterministic).")] = 7,
 ) -> None:
     """Write synthetic traffic with a blip, an outage and a slow burn, for demos and testing."""

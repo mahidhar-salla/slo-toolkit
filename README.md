@@ -104,7 +104,7 @@ The generated output for this spec is committed, so you can read it without inst
 |---|---|
 | 0 | Success. For `report`, no SLO is missed. |
 | 1 | A spec that is missing or fails validation (`validate`, `generate`, `report`, `simulate`); `validate --promtool` when `promtool` isn't on `PATH`; `report` data it can't use (missing CSV, unusable rows, Prometheus unreachable). |
-| 2 | Bad command-line input: a `calc` objective outside (0, 100) or a malformed window, an unknown `--profile`, an unknown `--slo`, `report` without exactly one of `--data` / `--prometheus-url`, or an unknown option. |
+| 2 | Bad command-line input: a `calc` objective outside (0, 100) or a malformed window, an unknown `--profile`, an unknown `--slo`, a `simulate --days` below 1, `report` without exactly one of `--data` / `--prometheus-url`, or an unknown option. |
 | 3 | `report` printed its output, and at least one SLO is already missed. |
 
 ## How the alerts work

@@ -45,6 +45,9 @@ All notable changes to this project are listed here. The format follows
   `slo:period_error:ratio` counted the all-bad stretch as good. The error ratio is now 1 and the
   alerts fire. With no `total` series at all the ratio is still absent. This changes the
   generated rules for every `good`-form SLI; `bad`-form SLIs are unchanged.
+- `simulate --days` now rejects values below 1 (exit 2). `--days 0` or `--days -1` used to
+  write a header-only CSV, print "0 synthetic rows" as a success and exit 0, so the mistake
+  only surfaced when `report` found no rows.
 
 ## [0.1.0] - 2026-10-11
 
