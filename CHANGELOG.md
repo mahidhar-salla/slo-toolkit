@@ -48,6 +48,10 @@ All notable changes to this project are listed here. The format follows
 - `simulate --days` now rejects values below 1 (exit 2). `--days 0` or `--days -1` used to
   write a header-only CSV, print "0 synthetic rows" as a success and exit 0, so the mistake
   only surfaced when `report` found no rows.
+- `generate` and `simulate` now report an `-o` path they cannot write as a one-line error and
+  exit 1. `generate -o` pointing at an existing file, `simulate -o` under an existing file, or
+  `simulate -o` pointing at a directory used to crash with a Python traceback (also exit 1).
+  Writing into a new or existing directory, and overwriting an existing CSV, are unchanged.
 
 ## [0.1.0] - 2026-10-11
 

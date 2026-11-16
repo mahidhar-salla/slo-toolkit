@@ -8,10 +8,11 @@ import subprocess
 import sys
 from enum import StrEnum
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, NoReturn
 
 import typer
 from rich.console import Console
+from rich.markup import escape
 from rich.table import Table
 
 from . import __version__
@@ -143,6 +144,12 @@ def _promtool_check(spec: Spec) -> bool:
     return ok
 
 
+def _output_error(exc: OSError) -> NoReturn:
+    """An output path we cannot write (a file where a directory is needed, or the reverse)."""
+    err.print(f"[red]✗[/red] cannot write output: {escape(str(exc))}", soft_wrap=True)
+    raise typer.Exit(1) from exc
+
+
 @app.command()
 def generate(
     spec_path: SpecArg,
@@ -151,19 +158,22 @@ def generate(
 ) -> None:
     """Generate Prometheus rules and a Grafana dashboard from a spec."""
     spec = _load(spec_path)
-    out.mkdir(parents=True, exist_ok=True)
     rules = out / f"{spec.service}.rules.yaml"
     dash = out / f"{spec.service}.dashboard.json"
-    rules.write_text(render_rules(spec))
-    dash.write_text(render_dashboard(spec))
-    console.print(f"[green]✓[/green] {rules}")
-    console.print(f"[green]✓[/green] {dash}")
-    if helm_values:
-        from .helm import render_values
+    try:
+        out.mkdir(parents=True, exist_ok=True)
+        rules.write_text(render_rules(spec))
+        dash.write_text(render_dashboard(spec))
+        console.print(f"[green]✓[/green] {rules}")
+        console.print(f"[green]✓[/green] {dash}")
+        if helm_values:
+            from .helm import render_values
 
-        values = out / f"{spec.service}.values.yaml"
-        values.write_text(render_values(spec))
-        console.print(f"[green]✓[/green] {values}")
+            values = out / f"{spec.service}.values.yaml"
+            values.write_text(render_values(spec))
+            console.print(f"[green]✓[/green] {values}")
+    except OSError as exc:
+        _output_error(exc)
     for warning in warnings_for(spec):
         console.print(f"[yellow]![/yellow] {warning}")
 
@@ -266,8 +276,11 @@ def simulate(
 ) -> None:
     """Write synthetic traffic with a blip, an outage and a slow burn, for demos and testing."""
     spec = _load(spec_path)
-    out.parent.mkdir(parents=True, exist_ok=True)
-    rows = run_simulation(spec, out, days=days, seed=seed)
+    try:
+        out.parent.mkdir(parents=True, exist_ok=True)
+        rows = run_simulation(spec, out, days=days, seed=seed)
+    except OSError as exc:
+        _output_error(exc)
     console.print(f"[green]✓[/green] {out}: {rows:,} synthetic rows over {days}d for {len(spec.slos)} SLO(s)")
 
 

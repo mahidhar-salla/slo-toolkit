@@ -103,7 +103,7 @@ The generated output for this spec is committed, so you can read it without inst
 | Code | Meaning |
 |---|---|
 | 0 | Success. For `report`, no SLO is missed. |
-| 1 | A spec that is missing or fails validation (`validate`, `generate`, `report`, `simulate`); `validate --promtool` when `promtool` isn't on `PATH`; `report` data it can't use (missing CSV, unusable rows, Prometheus unreachable). |
+| 1 | A spec that is missing or fails validation (`validate`, `generate`, `report`, `simulate`); `validate --promtool` when `promtool` isn't on `PATH`; `report` data it can't use (missing CSV, unusable rows, Prometheus unreachable); a `generate` or `simulate` `-o` path it can't write (e.g. an existing file where a directory is needed). |
 | 2 | Bad command-line input: a `calc` objective outside (0, 100) or a malformed window, an unknown `--profile`, an unknown `--slo`, a `simulate --days` below 1, `report` without exactly one of `--data` / `--prometheus-url`, or an unknown option. |
 | 3 | `report` printed its output, and at least one SLO is already missed. |
 
