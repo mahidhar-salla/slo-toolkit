@@ -52,6 +52,10 @@ All notable changes to this project are listed here. The format follows
   exit 1. `generate -o` pointing at an existing file, `simulate -o` under an existing file, or
   `simulate -o` pointing at a directory used to crash with a Python traceback (also exit 1).
   Writing into a new or existing directory, and overwriting an existing CSV, are unchanged.
+- A spec path that is a directory or a file that isn't UTF-8 text is now a one-line error
+  naming the path (exit 1), like a missing spec, in `validate`, `generate`, `report` and
+  `simulate`. It used to crash with an IsADirectoryError or UnicodeDecodeError traceback (also
+  exit 1), and `validate a.yaml b.yaml` stopped there without checking the remaining specs.
 
 ## [0.1.0] - 2026-10-11
 

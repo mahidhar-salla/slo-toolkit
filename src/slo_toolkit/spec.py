@@ -195,6 +195,10 @@ def load_spec(path: str | Path) -> Spec:
         raw = yaml.safe_load(path.read_text())
     except FileNotFoundError as exc:
         raise SpecError(f"{path}: file not found") from exc
+    except OSError as exc:  # a directory, or a file we may not read
+        raise SpecError(f"{path}: cannot read: {(exc.strerror or str(exc)).lower()}") from exc
+    except UnicodeDecodeError as exc:
+        raise SpecError(f"{path}: not {exc.encoding} text: {exc.reason} at byte {exc.start}") from exc
     except yaml.YAMLError as exc:
         raise SpecError(f"{path}: invalid YAML: {exc}") from exc
     if not isinstance(raw, dict):
