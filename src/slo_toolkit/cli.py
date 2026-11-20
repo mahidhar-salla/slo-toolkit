@@ -58,7 +58,7 @@ def _load(path: Path) -> Spec:
     try:
         return load_spec(path)
     except SpecError as exc:
-        err.print(f"[red]✗[/red] {exc}")
+        err.print(f"[red]✗[/red] {escape(str(exc))}")
         raise typer.Exit(1) from exc
 
 
@@ -70,13 +70,13 @@ def calc(
 ) -> None:
     """Show the error budget and burn-rate alert thresholds for an objective."""
     if profile not in POLICIES:
-        err.print(f"[red]unknown profile {profile!r}[/red]; choose from {', '.join(POLICIES)}")
+        err.print(f"[red]unknown profile {escape(repr(profile))}[/red]; choose from {', '.join(POLICIES)}")
         raise typer.Exit(2)
     try:
         budget = error_budget(objective)
         to_seconds(window)
     except ValueError as exc:
-        err.print(f"[red]✗[/red] {exc}")
+        err.print(f"[red]✗[/red] {escape(str(exc))}")
         raise typer.Exit(2) from exc
     console.print(
         f"[bold]{objective:g}% over {window}[/bold]: error budget {budget:.4%} "
@@ -114,10 +114,10 @@ def validate(
         try:
             spec = load_spec(path)
         except SpecError as exc:
-            err.print(f"[red]✗[/red] {exc}")
+            err.print(f"[red]✗[/red] {escape(str(exc))}")
             failed = True
             continue
-        console.print(f"[green]✓[/green] {path}: {spec.service}, {len(spec.slos)} SLO(s)")
+        console.print(f"[green]✓[/green] {escape(str(path))}: {spec.service}, {len(spec.slos)} SLO(s)")
         for warning in warnings_for(spec):
             console.print(f"  [yellow]![/yellow] {warning}")
         if promtool:
@@ -164,14 +164,14 @@ def generate(
         out.mkdir(parents=True, exist_ok=True)
         rules.write_text(render_rules(spec))
         dash.write_text(render_dashboard(spec))
-        console.print(f"[green]✓[/green] {rules}")
-        console.print(f"[green]✓[/green] {dash}")
+        console.print(f"[green]✓[/green] {escape(str(rules))}")
+        console.print(f"[green]✓[/green] {escape(str(dash))}")
         if helm_values:
             from .helm import render_values
 
             values = out / f"{spec.service}.values.yaml"
             values.write_text(render_values(spec))
-            console.print(f"[green]✓[/green] {values}")
+            console.print(f"[green]✓[/green] {escape(str(values))}")
     except OSError as exc:
         _output_error(exc)
     for warning in warnings_for(spec):
@@ -187,7 +187,7 @@ def _print_text(spec: Spec, reports: list[SLOReport]) -> None:
             f"SLI [bold]{r.sli:.4%}[/bold]  ·  budget remaining [bold {colour}]{r.budget_remaining:.1%}[/bold {colour}]"
             f"  ·  status [bold {colour}]{r.status}[/bold {colour}]"
         )
-        console.print(f"[dim]{humanize(r.coverage_s)} of data from {r.source}[/dim]")
+        console.print(f"[dim]{humanize(r.coverage_s)} of data from {escape(r.source)}[/dim]")
         rates = " · ".join(f"{w} {v:.2f}x" for w, v in r.burn_rates.items())
         console.print(f"Burn rate now: {rates}")
         if r.time_to_exhaustion_s is not None and r.time_to_exhaustion_s < to_seconds(r.window):
@@ -246,7 +246,7 @@ def report(
     if slo:
         unknown = set(slo) - {s.name for s in spec.slos}
         if unknown:
-            err.print(f"[red]unknown SLO(s): {', '.join(sorted(unknown))}[/red]")
+            err.print(f"[red]unknown SLO(s): {escape(', '.join(sorted(unknown)))}[/red]")
             raise typer.Exit(2)
         spec = spec.model_copy(update={"slos": [s for s in spec.slos if s.name in slo]})
     if (data is None) == (prometheus_url is None):
@@ -255,7 +255,7 @@ def report(
     try:
         reports = report_from_csv(spec, data) if data else report_from_prometheus(spec, prometheus_url or "")
     except (OSError, ValueError, RuntimeError) as exc:
-        err.print(f"[red]✗[/red] {exc}")
+        err.print(f"[red]✗[/red] {escape(str(exc))}")
         raise typer.Exit(1) from exc
     if fmt is Format.json:
         typer.echo(json.dumps({"service": spec.service, "slos": [r.to_dict() for r in reports]}, indent=2))
@@ -281,7 +281,9 @@ def simulate(
         rows = run_simulation(spec, out, days=days, seed=seed)
     except OSError as exc:
         _output_error(exc)
-    console.print(f"[green]✓[/green] {out}: {rows:,} synthetic rows over {days}d for {len(spec.slos)} SLO(s)")
+    console.print(
+        f"[green]✓[/green] {escape(str(out))}: {rows:,} synthetic rows over {days}d for {len(spec.slos)} SLO(s)"
+    )
 
 
 def run() -> None:  # pragma: no cover

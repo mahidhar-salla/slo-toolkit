@@ -56,6 +56,11 @@ All notable changes to this project are listed here. The format follows
   naming the path (exit 1), like a missing spec, in `validate`, `generate`, `report` and
   `simulate`. It used to crash with an IsADirectoryError or UnicodeDecodeError traceback (also
   exit 1), and `validate a.yaml b.yaml` stopped there without checking the remaining specs.
+- Square brackets in a spec path, an `-o` path, a CSV value or an option such as `--slo` or
+  `--window` are now printed as typed. The CLI passed this text to Rich unescaped, so a
+  closing tag like `[/x]` crashed the command with a MarkupError traceback (exit 1) and a
+  tag-like part such as `[prod]` was dropped from the message. These cases now print the
+  command's usual message and exit code.
 
 ## [0.1.0] - 2026-10-11
 
