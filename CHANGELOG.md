@@ -61,6 +61,11 @@ All notable changes to this project are listed here. The format follows
   closing tag like `[/x]` crashed the command with a MarkupError traceback (exit 1) and a
   tag-like part such as `[prod]` was dropped from the message. These cases now print the
   command's usual message and exit code.
+- The `typer` requirement is now `typer>=0.15.4` (was `>=0.12`). With an older typer already
+  installed, which pip keeps because it meets the old floor, the CLI crashed: typer 0.12.0 to
+  0.12.3 cannot read the `Path | None` options, and typer 0.12.4 to 0.15.3 break with click 8.2
+  or later (every command on 0.12.x, `--help` on 0.13 to 0.15.3). Found by installing the built
+  wheel next to each typer release.
 
 ## [0.1.0] - 2026-10-11
 
