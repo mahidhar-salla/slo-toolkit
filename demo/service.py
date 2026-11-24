@@ -10,6 +10,7 @@ exposes Prometheus metrics at /metrics. Failure injection is a POST away:
 from __future__ import annotations
 
 import json
+import math
 import os
 import random
 import threading
@@ -91,10 +92,19 @@ class Handler(BaseHTTPRequestHandler):
         if q.get("reset"):
             chaos.update(error_rate=0.0, latency_ms=0.0, until=0.0)
         else:
+            values = {}
+            for name, default in (("error_rate", 0.2), ("latency_ms", 0.0), ("seconds", 600.0)):
+                try:
+                    values[name] = float(q.get(name, default))
+                except ValueError:
+                    values[name] = math.nan
+                if not math.isfinite(values[name]):
+                    self._send(400, json.dumps({"error": f"{name} must be a finite number"}))
+                    return
             chaos.update(
-                error_rate=float(q.get("error_rate", 0.2)),
-                latency_ms=float(q.get("latency_ms", 0)),
-                until=time.time() + float(q.get("seconds", 600)),
+                error_rate=values["error_rate"],
+                latency_ms=values["latency_ms"],
+                until=time.time() + values["seconds"],
             )
         self._send(200, json.dumps(chaos))
 

@@ -66,6 +66,11 @@ All notable changes to this project are listed here. The format follows
   0.12.3 cannot read the `Path | None` options, and typer 0.12.4 to 0.15.3 break with click 8.2
   or later (every command on 0.12.x, `--help` on 0.13 to 0.15.3). Found by installing the built
   wheel next to each typer release.
+- The demo service's `POST /chaos` now answers 400 with an `error` message when `error_rate`,
+  `latency_ms` or `seconds` is not a finite number. A value like `abc` raised inside the
+  handler, so the client got an empty reply and the server printed a traceback; `nan` and
+  `inf` were accepted, and `latency_ms=nan` left `http_request_duration_seconds_sum` at NaN
+  until the service restarted (`reset=1` did not clear it). Valid requests behave as before.
 
 ## [0.1.0] - 2026-10-11
 
