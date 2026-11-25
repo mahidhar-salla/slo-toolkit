@@ -71,6 +71,10 @@ All notable changes to this project are listed here. The format follows
   handler, so the client got an empty reply and the server printed a traceback; `nan` and
   `inf` were accepted, and `latency_ms=nan` left `http_request_duration_seconds_sum` at NaN
   until the service restarted (`reset=1` did not clear it). Valid requests behave as before.
+- `report --data` now reads a CSV saved with a UTF-8 byte order mark (Excel "CSV UTF-8",
+  Windows PowerShell `Export-Csv`). The mark stuck to the first header name, so the report
+  failed with "missing CSV columns: timestamp" (exit 1) on a file that has that column.
+  The CSV is now read as UTF-8 with or without the mark; UTF-8 files without it read as before.
 
 ## [0.1.0] - 2026-10-11
 

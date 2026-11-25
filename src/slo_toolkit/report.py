@@ -101,7 +101,9 @@ def _parse_row(row: dict[str, str], where: str) -> tuple[int, float, float]:
 
 def load_csv(path: str | Path) -> dict[str, list[tuple[int, float, float]]]:
     series: dict[str, list[tuple[int, float, float]]] = defaultdict(list)
-    with open(path, newline="") as fh:
+    # utf-8-sig drops the byte order mark Excel and PowerShell write; without it the BOM
+    # sticks to the first column name and "timestamp" reads as missing.
+    with open(path, newline="", encoding="utf-8-sig") as fh:
         reader = csv.DictReader(fh)
         missing = {"timestamp", "slo", "good", "total"} - set(reader.fieldnames or [])
         if missing:
